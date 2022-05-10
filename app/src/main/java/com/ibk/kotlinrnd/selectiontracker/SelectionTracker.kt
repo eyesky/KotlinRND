@@ -5,5 +5,5 @@ import kotlinx.android.parcel.Parcelize
 
 @Parcelize
 data class SelectionTracker(
-    private val itemName: String
+    val itemName: String
 ) : Parcelable

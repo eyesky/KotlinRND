@@ -1,20 +1,51 @@
 package com.ibk.kotlinrnd.selectiontracker
 
 import android.os.Bundle
-import android.view.LayoutInflater
+import android.util.Log
 import android.view.View
-import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.navArgs
+import androidx.recyclerview.selection.SelectionPredicates
+import androidx.recyclerview.selection.StorageStrategy
 import com.ibk.kotlinrnd.R
+import com.ibk.kotlinrnd.databinding.ItemSelectionTrackerBinding
 import kotlinx.android.synthetic.main.fragment_selection_tracker.*
 
 class SelectionTrackerFragment : Fragment(R.layout.fragment_selection_tracker) {
 
     private val args: SelectionTrackerFragmentArgs by navArgs()
+    private lateinit var genericAdapter: GenericRecyclerViewAdapter<SelectionTracker, ItemSelectionTrackerBinding>
+    private lateinit var selectionTracker: androidx.recyclerview.selection.SelectionTracker<Long>
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        genericAdapter = GenericRecyclerViewAdapter(R.layout.item_selection_tracker, createBindingInterface())
+
+        selectionTracker = androidx.recyclerview.selection.SelectionTracker.Builder(
+            "material",
+            rv_selection_tracker,
+            GenericItemKeyProvider(rv_selection_tracker),
+            GenericItemLookUp(rv_selection_tracker),
+            StorageStrategy.createLongStorage()
+        ).withSelectionPredicate(SelectionPredicates.createSelectAnything()).build()
+
+        selectionTracker.addObserver(object : androidx.recyclerview.selection.SelectionTracker.SelectionObserver<Long>() {
+            override fun onSelectionChanged() {
+                super.onSelectionChanged()
+//                menuView.findItem(R.id.item_check).isVisible = !selectionTracker.selection.isEmpty
+                if (selectionTracker.selection.size() > 0) {
+                    selectedItems = selectionTracker.selection.map {
+                        genericAdapter.currentList[it.toInt()]
+                    }
+                    selectedItems.forEach {
+                        Log.i("items", "$it")
+                    }
+                }
+            }
+
+        })
+        genericAdapter.selectionTracker = selectionTracker
 
     }
 
@@ -33,6 +64,19 @@ class SelectionTrackerFragment : Fragment(R.layout.fragment_selection_tracker) {
         }
         return data
     }
+
+    private fun createBindingInterface() =
+        object : GenericRecyclerBindingInterface<ItemSelectionTrackerBinding, SelectionTracker> {
+            override fun bindData(
+                binder: ItemSelectionTrackerBinding,
+                model: SelectionTracker,
+                clickListener: GenericClickListener<SelectionTracker>?,
+                position: Int
+            ) {
+                binder.checkboxSelectionTracker.text = model.itemName
+            }
+
+        }
 
 
 }
