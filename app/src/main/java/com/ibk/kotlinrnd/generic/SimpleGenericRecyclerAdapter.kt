@@ -1,37 +1,42 @@
 package com.ibk.kotlinrnd.generic
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.LayoutRes
+import androidx.databinding.DataBindingUtil
+import androidx.databinding.ViewDataBinding
 import androidx.recyclerview.widget.RecyclerView
+import androidx.viewbinding.ViewBinding
+import com.ibk.kotlinrnd.databinding.ItemSelectionTrackerBinding
 
-class SimpleGenericRecyclerAdapter<T : Any>(
-    private val dataSet: List<T>, @LayoutRes val layoutID: Int,
-    private val bindingInterface: GenericSimpleRecyclerBindingInterface<T>
-) :
-    RecyclerView.Adapter<SimpleGenericRecyclerAdapter.ViewHolder>() {
+class SimpleGenericRecyclerAdapter<T> :
+    RecyclerView.Adapter<SimpleGenericRecyclerAdapter.ViewHolder<T>>() {
 
-    class ViewHolder(private val view: View) : RecyclerView.ViewHolder(view) {
-        fun <T : Any> bind(
-            item: T,
-            bindingInterface: GenericSimpleRecyclerBindingInterface<T>
-        ) = bindingInterface.bindData(item, view)
+    var listOfItems:MutableList<T>? = mutableListOf()
+        set(value) {
+            field = value
+            notifyDataSetChanged()
+        }
+    var expressionViewHolderBinding: ((T, ViewBinding) -> Unit)? = null
+    var expressionOnCreateViewHolder: ((ViewGroup) -> ViewBinding)? = null
+
+    class ViewHolder<T>(
+        private val binding: ViewBinding,
+        private val expression: (T, ViewBinding) -> Unit
+    ) :
+        RecyclerView.ViewHolder(binding.root) {
+        fun bind(item: T) = expression(item, binding)
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(layoutID, parent, false)
-        return ViewHolder(view)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder<T> {
+        return expressionOnCreateViewHolder?.let { it(parent) }?.let { ViewHolder(it, expressionViewHolderBinding!!) }!!
     }
 
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val item = dataSet[position]
-        holder.bind(item, bindingInterface)
+    override fun onBindViewHolder(holder: ViewHolder<T>, position: Int) {
+        val item = listOfItems!![position]
+        holder.bind(item)
     }
 
-    override fun getItemCount(): Int = dataSet.size
+    override fun getItemCount(): Int = listOfItems!!.size
 }
 
-interface GenericSimpleRecyclerBindingInterface<T : Any> {
-    fun bindData(item: T, view: View)
-}
