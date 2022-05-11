@@ -2,7 +2,7 @@ plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
     id 'androidx.navigation.safeargs'
-    id 'kotlin-android-extensions'
+    id 'kotlin-parcelize'
 }
 
 android {
@@ -33,6 +33,7 @@ android {
     }
     buildFeatures {
         viewBinding true
+        dataBinding true
     }
 }
 
@@ -56,4 +57,8 @@ dependencies {
 
     // data binding
     implementation 'androidx.databinding:databinding-runtime:7.1.2'
+
+    // selection tracker
+    implementation 'androidx.recyclerview:recyclerview-selection:1.2.0-alpha01'
+
 }

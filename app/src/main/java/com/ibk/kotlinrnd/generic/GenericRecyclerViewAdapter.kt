@@ -1,4 +1,4 @@
-package com.ibk.kotlinrnd.selectiontracker
+package com.ibk.kotlinrnd.generic
 
 import android.annotation.SuppressLint
 import android.os.Build
@@ -16,7 +16,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 
-class GenericRecyclerViewAdapter <T : Any, VM : ViewDataBinding>(
+class GenericRecyclerViewAdapter<T : Any, VM : ViewDataBinding>(
     @LayoutRes val layoutID: Int,
     private val bindingInterface: GenericRecyclerBindingInterface<VM, T>,
     private val clickListener: GenericClickListener<T>? = null
