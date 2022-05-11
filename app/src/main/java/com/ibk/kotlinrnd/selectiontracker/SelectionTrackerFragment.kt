@@ -6,6 +6,7 @@ import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.selection.SelectionPredicates
+import androidx.recyclerview.selection.SelectionTracker
 import androidx.recyclerview.selection.StorageStrategy
 import com.ibk.kotlinrnd.R
 import com.ibk.kotlinrnd.databinding.ItemSelectionTrackerBinding
@@ -14,7 +15,7 @@ import kotlinx.android.synthetic.main.fragment_selection_tracker.*
 class SelectionTrackerFragment : Fragment(R.layout.fragment_selection_tracker) {
 
     private val args: SelectionTrackerFragmentArgs by navArgs()
-    private lateinit var genericAdapter: GenericRecyclerViewAdapter<SelectionTracker, ItemSelectionTrackerBinding>
+    private lateinit var genericAdapter: GenericRecyclerViewAdapter<SelectionTrackerModel, ItemSelectionTrackerBinding>
     private lateinit var selectionTracker: androidx.recyclerview.selection.SelectionTracker<Long>
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -22,7 +23,7 @@ class SelectionTrackerFragment : Fragment(R.layout.fragment_selection_tracker) {
 
         genericAdapter = GenericRecyclerViewAdapter(R.layout.item_selection_tracker, createBindingInterface())
 
-        selectionTracker = androidx.recyclerview.selection.SelectionTracker.Builder(
+        selectionTracker = SelectionTracker.Builder(
             "material",
             rv_selection_tracker,
             GenericItemKeyProvider(rv_selection_tracker),
@@ -30,7 +31,7 @@ class SelectionTrackerFragment : Fragment(R.layout.fragment_selection_tracker) {
             StorageStrategy.createLongStorage()
         ).withSelectionPredicate(SelectionPredicates.createSelectAnything()).build()
 
-        selectionTracker.addObserver(object : androidx.recyclerview.selection.SelectionTracker.SelectionObserver<Long>() {
+        selectionTracker.addObserver(object : SelectionTracker.SelectionObserver<Long>() {
             override fun onSelectionChanged() {
                 super.onSelectionChanged()
 //                menuView.findItem(R.id.item_check).isVisible = !selectionTracker.selection.isEmpty
@@ -49,28 +50,28 @@ class SelectionTrackerFragment : Fragment(R.layout.fragment_selection_tracker) {
 
     }
 
-    private fun getList() : MutableList<SelectionTracker> {
-        val data = mutableListOf<SelectionTracker>().apply {
-            SelectionTracker("a")
-            SelectionTracker("b")
-            SelectionTracker("c")
-            SelectionTracker("d")
-            SelectionTracker("e")
-            SelectionTracker("f")
-            SelectionTracker("g")
-            SelectionTracker("h")
-            SelectionTracker("i")
-            SelectionTracker("j")
+    private fun getList() : MutableList<SelectionTrackerModel> {
+        val data = mutableListOf<SelectionTrackerModel>().apply {
+            SelectionTrackerModel("a")
+            SelectionTrackerModel("b")
+            SelectionTrackerModel("c")
+            SelectionTrackerModel("d")
+            SelectionTrackerModel("e")
+            SelectionTrackerModel("f")
+            SelectionTrackerModel("g")
+            SelectionTrackerModel("h")
+            SelectionTrackerModel("i")
+            SelectionTrackerModel("j")
         }
         return data
     }
 
     private fun createBindingInterface() =
-        object : GenericRecyclerBindingInterface<ItemSelectionTrackerBinding, SelectionTracker> {
+        object : GenericRecyclerBindingInterface<ItemSelectionTrackerBinding, SelectionTrackerModel> {
             override fun bindData(
                 binder: ItemSelectionTrackerBinding,
-                model: SelectionTracker,
-                clickListener: GenericClickListener<SelectionTracker>?,
+                model: SelectionTrackerModel,
+                clickListener: GenericClickListener<SelectionTrackerModel>?,
                 position: Int
             ) {
                 binder.checkboxSelectionTracker.text = model.itemName
