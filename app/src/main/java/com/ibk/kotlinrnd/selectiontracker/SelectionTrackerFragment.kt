@@ -6,17 +6,20 @@ import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.viewbinding.ViewBinding
 import com.ibk.kotlinrnd.R
 import com.ibk.kotlinrnd.databinding.FragmentSelectionTrackerBinding
 import com.ibk.kotlinrnd.databinding.ItemSelectionTrackerBinding
-import com.ibk.kotlinrnd.generic.SimpleGenericRecyclerAdapter
+import com.ibk.kotlinrnd.generic.BindingInterface
+import com.ibk.kotlinrnd.generic.MyGenericAdapter
 
 class SelectionTrackerFragment : Fragment(R.layout.fragment_selection_tracker) {
 
     private lateinit var binding: FragmentSelectionTrackerBinding
     private val args: SelectionTrackerFragmentArgs by navArgs()
 
-    private lateinit var adapter: SimpleGenericRecyclerAdapter<String>
+    //    private lateinit var adapter: SimpleGenericRecyclerAdapter<String>
+    private lateinit var adapter: MyGenericAdapter<SelectionTrackerModel, ItemSelectionTrackerBinding>
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -24,19 +27,20 @@ class SelectionTrackerFragment : Fragment(R.layout.fragment_selection_tracker) {
         binding = FragmentSelectionTrackerBinding.bind(view)
 
 
-        adapter = SimpleGenericRecyclerAdapter()
+/*        adapter = SimpleGenericRecyclerAdapter()
 
         //Sample data
         adapter.listOfItems = mutableListOf("2", "3", "2", "3", "2", "3")
 
         adapter.expressionViewHolderBinding = { eachItem, viewBinding ->
             //eachItem will provide the each item in the list, in this case its a string type
-            //cast the viewBinding with yout layout binding class
+            //cast the viewBinding with your layout binding class
             var view = viewBinding as ItemSelectionTrackerBinding
             view.checkboxSelectionTracker.text = eachItem
             //you can use click listener on root or any button
             view.root.setOnClickListener {
                 //Click item value is eachItem
+
             }
         }
 
@@ -47,6 +51,13 @@ class SelectionTrackerFragment : Fragment(R.layout.fragment_selection_tracker) {
                 viewGroup,
                 false
             )
+        }*/
+
+
+        adapter = MyGenericAdapter(getList(), R.layout.item_selection_tracker, createBindingInterface())
+
+        adapter.expOnCreateViewHolder = {
+            ItemSelectionTrackerBinding.inflate(LayoutInflater.from(it.context), it, false)
         }
 
         binding.rvSelectionTracker.layoutManager =
@@ -54,6 +65,14 @@ class SelectionTrackerFragment : Fragment(R.layout.fragment_selection_tracker) {
         binding.rvSelectionTracker.adapter = adapter
 
     }
+
+    private fun createBindingInterface() =
+        object : BindingInterface<SelectionTrackerModel, ItemSelectionTrackerBinding> {
+            override fun bindData(item: SelectionTrackerModel, view: ItemSelectionTrackerBinding) {
+                view.checkboxSelectionTracker.text = item.itemName
+            }
+        }
+
 
     private fun getList(): MutableList<SelectionTrackerModel> {
         return mutableListOf(
