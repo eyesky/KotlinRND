@@ -1,55 +1,47 @@
 package com.ibk.kotlinrnd.generic
 
-import android.os.Build
-import android.view.LayoutInflater
-import android.view.View
+import android.annotation.SuppressLint
 import android.view.ViewGroup
-import androidx.annotation.LayoutRes
-import androidx.annotation.RequiresApi
-import androidx.databinding.DataBindingUtil
-import androidx.databinding.ViewDataBinding
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewbinding.ViewBinding
-import com.ibk.kotlinrnd.databinding.ItemSelectionTrackerBinding
-import kotlin.math.exp
 
-class MyGenericAdapter<T, VM : ViewBinding>(
-    private val dataSet: List<T>,
-    @LayoutRes val layoutID: Int,
-    private val bindingInterface: BindingInterface<T, VM>
-) : RecyclerView.Adapter<MyGenericAdapter.ViewHolder>() {
+class MyGenericAdapter<T> :
+    ListAdapter<T, MyGenericAdapter.ViewHolder<T>>(MyDiffUtilCallback()) {
 
-    var expOnCreateViewHolder: ((ViewGroup)-> ViewBinding)? = null
+    var expOnCreateViewHolder: ((ViewGroup) -> ViewBinding)? = null
+    var expOnViewHolderBinding: ((T, ViewBinding) -> Unit)? = null
 
-    class ViewHolder(private val binding: ViewBinding) : RecyclerView.ViewHolder(binding.root) {
-        @RequiresApi(Build.VERSION_CODES.HONEYCOMB)
-        fun <T, VM : ViewBinding> bind(item: T, bindingInterface: BindingInterface<T, VM>) =
-            bindingInterface.bindData(item, binding as VM)
+    class ViewHolder<T>(
+        private val binding: ViewBinding,
+        private val expression: ((T, ViewBinding) -> Unit)?
+    ) : RecyclerView.ViewHolder(binding.root) {
+        fun bind(item: T) = expression?.let { it(item, binding) }
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-/*        val layoutInflater = LayoutInflater.from(parent.context)
-        val binding = DataBindingUtil.inflate<ViewDataBinding>(
-            layoutInflater,
-            layoutID,
-            parent,
-            false
-        )
-        return ViewHolder(binding)*/
-
-        return expOnCreateViewHolder?.let { it(parent) }?.let { ViewHolder(it) }!!
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder<T> {
+        return expOnCreateViewHolder?.let { it(parent) }
+            ?.let { ViewHolder(it, expOnViewHolderBinding) }!!
     }
 
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val item = dataSet[position]
-        holder.bind(item, bindingInterface)
+    override fun onBindViewHolder(holder: ViewHolder<T>, position: Int) {
+        val item = getItem(position)
+        holder.bind(item)
     }
 
-    override fun getItemCount(): Int {
-        return dataSet.size
+    override fun getItemId(position: Int): Long {
+        return position.toLong()
     }
+
 }
 
-interface BindingInterface<T, VM : ViewBinding> {
-    fun bindData(item: T, view: VM)
+
+class MyDiffUtilCallback<T> : DiffUtil.ItemCallback<T>() {
+    override fun areItemsTheSame(oldItem: T, newItem: T): Boolean =
+        oldItem.toString() == newItem.toString()
+
+    @SuppressLint("DiffUtilEquals")
+    override fun areContentsTheSame(oldItem: T, newItem: T): Boolean =
+        oldItem == newItem
 }
