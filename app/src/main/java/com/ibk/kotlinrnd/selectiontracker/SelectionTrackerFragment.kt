@@ -60,14 +60,14 @@ class SelectionTrackerFragment : Fragment(R.layout.fragment_selection_tracker) {
             StorageStrategy.createLongStorage()
         ).withSelectionPredicate(SelectionPredicates.createSelectAnything()).build()
 
-        selectionTracker.addObserver(object : SelectionTracker.SelectionObserver<Long>(){
+        selectionTracker.addObserver(object : SelectionTracker.SelectionObserver<Long>() {
             override fun onSelectionChanged() {
                 super.onSelectionChanged()
                 if (selectionTracker.selection.size() > 0) {
                     selectionItems = selectionTracker.selection.map {
                         mAdapter.currentList[it.toInt()]
                     }
-                    selectionItems.forEach{
+                    selectionItems.forEach {
                         Log.e(TAG, "onSelectionChanged: ${it.itemName}")
                     }
                 }
@@ -82,20 +82,19 @@ class SelectionTrackerFragment : Fragment(R.layout.fragment_selection_tracker) {
 
     }
 
-    private fun getList(): MutableList<SelectionTrackerModel> {
-        return mutableListOf(
-            SelectionTrackerModel("araf mollah"),
-            SelectionTrackerModel("b"),
-            SelectionTrackerModel("c"),
-            SelectionTrackerModel("d"),
-            SelectionTrackerModel("e"),
-            SelectionTrackerModel("f"),
-            SelectionTrackerModel("g"),
-            SelectionTrackerModel("h"),
-            SelectionTrackerModel("i"),
-            SelectionTrackerModel("j")
-        )
-    }
+    private fun getList(): MutableList<SelectionTrackerModel> = mutableListOf(
+        SelectionTrackerModel("araf mollah"),
+        SelectionTrackerModel("b"),
+        SelectionTrackerModel("c"),
+        SelectionTrackerModel("d"),
+        SelectionTrackerModel("e"),
+        SelectionTrackerModel("f"),
+        SelectionTrackerModel("g"),
+        SelectionTrackerModel("h"),
+        SelectionTrackerModel("i"),
+        SelectionTrackerModel("j")
+    )
+
 
 }
 

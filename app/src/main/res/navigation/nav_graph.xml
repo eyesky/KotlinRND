@@ -16,6 +16,9 @@
             app:exitAnim="@anim/slide_out_left"
             app:popEnterAnim="@anim/slide_in_left"
             app:popExitAnim="@anim/slide_out_right" />
+        <action
+            android:id="@+id/action_mainFragment_to_rvSelectionFragment"
+            app:destination="@id/rvSelectionFragment" />
 
     </fragment>
     <fragment
@@ -27,4 +30,9 @@
             android:name="test_string_pass"
             app:argType="string" />
     </fragment>
+    <fragment
+        android:id="@+id/rvSelectionFragment"
+        android:name="com.ibk.kotlinrnd.rvselection.RvSelectionFragment"
+        android:label="Recyclerview Selection"
+        tools:layout="@layout/fragment_rvselection" />
 </navigation>
