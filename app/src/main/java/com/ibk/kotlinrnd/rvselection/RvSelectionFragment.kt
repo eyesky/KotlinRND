@@ -1,6 +1,7 @@
 package com.ibk.kotlinrnd.rvselection
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,18 +12,19 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.selection.SelectionPredicates
 import androidx.recyclerview.selection.SelectionTracker
 import androidx.recyclerview.selection.StorageStrategy
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.ibk.kotlinrnd.R
 import com.ibk.kotlinrnd.databinding.FragmentMainBinding
 import com.ibk.kotlinrnd.databinding.FragmentRvselectionBinding
 import com.ibk.kotlinrnd.selectiontracker.SelectionTrackerModel
 
 class RvSelectionFragment : Fragment(R.layout.fragment_rvselection) {
+    private lateinit var selectionItems: List<RvSelectionItem>
+    private val TAG = "RvSelectionFragment"
+    private lateinit var binding: FragmentRvselectionBinding
 
-    private var _binding: FragmentRvselectionBinding? = null
-    private val binding get() = _binding!!
-
-    private lateinit var adapter: RvSelectionAdapter
-    private var selectionTracker: SelectionTracker<String>? = null
+    private lateinit var mAdapter: RvSelectionAdapter
+    private lateinit var tracker: SelectionTracker<Long>
 
 /*    override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -37,35 +39,48 @@ class RvSelectionFragment : Fragment(R.layout.fragment_rvselection) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        _binding = FragmentRvselectionBinding.bind(view)
+        binding = FragmentRvselectionBinding.bind(view)
 
         setup()
     }
 
     private fun setup() {
-        adapter = RvSelectionAdapter()
+        mAdapter = RvSelectionAdapter()
 
-        selectionTracker = SelectionTracker.Builder(
+        binding.rvRecyclerviewSelection.apply {
+            layoutManager = LinearLayoutManager(activity)
+            adapter = mAdapter
+        }
+
+        mAdapter.submitList(getDataList())
+
+        tracker = SelectionTracker.Builder(
             "mySelectionx",
             binding.rvRecyclerviewSelection,
-            RvSelectionAdapter.MyItemKeyProvider(adapter),
+            RvSelectionAdapter.MyItemKeyProvider(binding.rvRecyclerviewSelection),
             RvSelectionAdapter.MyItemDetailsLookup(binding.rvRecyclerviewSelection),
-            StorageStrategy.createStringStorage()
+            StorageStrategy.createLongStorage()
         ).withSelectionPredicate(
             SelectionPredicates.createSelectAnything()
         ).build()
 
-        selectionTracker?.addObserver(
-            object : SelectionTracker.SelectionObserver<String>() {
+        tracker?.addObserver(
+            object : SelectionTracker.SelectionObserver<Long>() {
                 override fun onSelectionChanged() {
                     super.onSelectionChanged()
-                    val items = selectionTracker?.selection!!.size()
+                    if (tracker.selection.size() > 0) {
+                        selectionItems = tracker.selection.map {
+                            mAdapter.currentList[it.toInt()]
+                        }
+                        selectionItems.forEach {
+                            Log.e(TAG, "onSelectionChanged: ${it}")
+                        }
+                    }
                 }
             })
 
-        adapter.tracker = selectionTracker
+        mAdapter.tracker = tracker
 
-        adapter.submitList(getDataList())
     }
 
     private fun getDataList() = mutableListOf(
@@ -74,9 +89,4 @@ class RvSelectionFragment : Fragment(R.layout.fragment_rvselection) {
         RvSelectionItem("c", "Cat"),
         RvSelectionItem("d", "Dog")
     )
-
-    override fun onDestroy() {
-        super.onDestroy()
-        _binding = null
-    }
 }

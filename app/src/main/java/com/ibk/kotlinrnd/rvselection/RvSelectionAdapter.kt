@@ -17,7 +17,11 @@ import com.ibk.kotlinrnd.R
 class RvSelectionAdapter :
     ListAdapter<RvSelectionItem, RvSelectionAdapter.ItemViewHolder>(DiffCallback()) {
 
-    var tracker: SelectionTracker<String>? = null
+    var tracker: SelectionTracker<Long>? = null
+
+    init {
+        setHasStableIds(true)
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder {
         return ItemViewHolder(
@@ -31,7 +35,7 @@ class RvSelectionAdapter :
     override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
         val item = getItem(position)
         tracker?.let {
-            holder.bind(item, it.isSelected(position.toString()))
+            holder.bind(item, it.isSelected(position.toLong()))
         }
     }
 
@@ -47,10 +51,10 @@ class RvSelectionAdapter :
                     .setBackgroundResource(R.drawable.ic_radio_button_unchecked)
         }
 
-        fun getItemDetails(): ItemDetailsLookup.ItemDetails<String> =
-            object : ItemDetailsLookup.ItemDetails<String>() {
+        fun getItemDetails(): ItemDetailsLookup.ItemDetails<Long> =
+            object : ItemDetailsLookup.ItemDetails<Long>() {
                 override fun getPosition(): Int = bindingAdapterPosition
-                override fun getSelectionKey(): String? = itemId.toString()
+                override fun getSelectionKey(): Long? = itemId
                 override fun inSelectionHotspot(e: MotionEvent): Boolean = true
             }
     }
@@ -68,21 +72,20 @@ class RvSelectionAdapter :
         }
     }
 
-    class MyItemKeyProvider(private val adapter: RvSelectionAdapter) :
-        ItemKeyProvider<String>(SCOPE_CACHED) {
-        override fun getKey(position: Int): String? =
-            adapter.currentList[position].title
+    class MyItemKeyProvider(private val recyclerView: RecyclerView) :
+        ItemKeyProvider<Long>(SCOPE_CACHED) {
+        override fun getKey(position: Int): Long? = recyclerView.adapter?.getItemId(position)
 
-        override fun getPosition(key: String): Int =
-            adapter.currentList.indexOfFirst { it.title == key }
+        override fun getPosition(key: Long): Int =
+            recyclerView.findViewHolderForItemId(key)?.layoutPosition ?: RecyclerView.NO_POSITION
     }
 
     class MyItemDetailsLookup(private val recyclerView: RecyclerView) :
-        ItemDetailsLookup<String>() {
-        override fun getItemDetails(event: MotionEvent): ItemDetails<String>? {
+        ItemDetailsLookup<Long>() {
+        override fun getItemDetails(event: MotionEvent): ItemDetails<Long>? {
             val view = recyclerView.findChildViewUnder(event.x, event.y)
             if (view != null) {
-                return (recyclerView.getChildViewHolder(view) as RvSelectionAdapter.ItemViewHolder).getItemDetails()
+                return (recyclerView.getChildViewHolder(view) as ItemViewHolder).getItemDetails()
             }
             return null
         }

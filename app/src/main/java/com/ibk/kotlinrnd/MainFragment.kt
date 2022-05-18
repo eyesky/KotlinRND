@@ -32,6 +32,10 @@ class MainFragment : Fragment() {
             val action = MainFragmentDirections.actionMainFragmentToSelectionTrackerFragment(selectionTracker)
             findNavController().navigate(action)
         }
+
+        binding.btnRecyclerviewSelection.setOnClickListener {
+            findNavController().navigate(MainFragmentDirections.actionMainFragmentToRvSelectionFragment())
+        }
     }
 
     override fun onDestroy() {
