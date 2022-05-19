@@ -1,11 +1,13 @@
 package com.ibk.kotlinrnd.rvselection
 
+import android.app.Activity
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import androidx.navigation.fragment.findNavController
@@ -26,16 +28,7 @@ class RvSelectionFragment : Fragment(R.layout.fragment_rvselection) {
     private lateinit var mAdapter: RvSelectionAdapter
     private lateinit var tracker: SelectionTracker<Long>
 
-/*    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        _binding = FragmentRvselectionBinding.inflate(inflater, container, false)
-
-//        setup()
-
-        return binding.root
-    }*/
+    private val viewModel: RvSelectionViewModel by activityViewModels()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -55,7 +48,7 @@ class RvSelectionFragment : Fragment(R.layout.fragment_rvselection) {
         mAdapter.submitList(getDataList())
 
         tracker = SelectionTracker.Builder(
-            "mySelectionx",
+            "mySelection",
             binding.rvRecyclerviewSelection,
             RvSelectionAdapter.MyItemKeyProvider(binding.rvRecyclerviewSelection),
             RvSelectionAdapter.MyItemDetailsLookup(binding.rvRecyclerviewSelection),
@@ -75,6 +68,7 @@ class RvSelectionFragment : Fragment(R.layout.fragment_rvselection) {
                         selectionItems.forEach {
                             Log.e(TAG, "onSelectionChanged: ${it}")
                         }
+                        viewModel.selectedItemList(selectionItems)
                     }
                 }
             })

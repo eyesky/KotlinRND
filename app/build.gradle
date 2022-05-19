@@ -61,4 +61,7 @@ dependencies {
     // selection tracker
     implementation 'androidx.recyclerview:recyclerview-selection:1.2.0-alpha01'
 
+    // view model
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.0-rc01'
+
 }

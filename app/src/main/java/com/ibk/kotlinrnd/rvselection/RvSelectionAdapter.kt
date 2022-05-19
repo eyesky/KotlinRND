@@ -2,10 +2,7 @@ package com.ibk.kotlinrnd.rvselection
 
 import android.view.LayoutInflater
 import android.view.MotionEvent
-import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.TextView
 import androidx.recyclerview.selection.ItemDetailsLookup
 import androidx.recyclerview.selection.ItemKeyProvider
 import androidx.recyclerview.selection.SelectionTracker
@@ -13,6 +10,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.ibk.kotlinrnd.R
+import com.ibk.kotlinrnd.databinding.ItemRvselectionBinding
 
 class RvSelectionAdapter :
     ListAdapter<RvSelectionItem, RvSelectionAdapter.ItemViewHolder>(DiffCallback()) {
@@ -20,13 +18,17 @@ class RvSelectionAdapter :
     var tracker: SelectionTracker<Long>? = null
 
     init {
+        // important otherwise app will crash for bound exception
         setHasStableIds(true)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder {
         return ItemViewHolder(
-            LayoutInflater.from(parent.context)
-                .inflate(R.layout.item_rvselection, parent, false)
+            ItemRvselectionBinding.inflate(
+                LayoutInflater.from(parent.context),
+                parent,
+                false
+            )
         )
     }
 
@@ -39,22 +41,22 @@ class RvSelectionAdapter :
         }
     }
 
-    class ItemViewHolder(private val view: View) : RecyclerView.ViewHolder(view) {
+    class ItemViewHolder(private val binding: ItemRvselectionBinding) :
+        RecyclerView.ViewHolder(binding.root) {
         fun bind(item: RvSelectionItem, isActivated: Boolean) {
-            view.findViewById<TextView>(R.id.tv_title).text = item.title
-            view.findViewById<TextView>(R.id.tv_description).text = item.description
+            binding.tvTitle.text = item.title
+            binding.tvDescription.text = item.description
             if (isActivated)
-                view.findViewById<ImageView>(R.id.iv_checked_unchecked)
-                    .setBackgroundResource(R.drawable.ic_check_circle)
+                binding.ivCheckedUnchecked.setBackgroundResource(R.drawable.ic_check_circle)
             else
-                view.findViewById<ImageView>(R.id.iv_checked_unchecked)
-                    .setBackgroundResource(R.drawable.ic_radio_button_unchecked)
+                binding.ivCheckedUnchecked.setBackgroundResource(R.drawable.ic_radio_button_unchecked)
         }
 
         fun getItemDetails(): ItemDetailsLookup.ItemDetails<Long> =
             object : ItemDetailsLookup.ItemDetails<Long>() {
                 override fun getPosition(): Int = bindingAdapterPosition
                 override fun getSelectionKey(): Long? = itemId
+                // for single selection activation/deactivation by true/false
                 override fun inSelectionHotspot(e: MotionEvent): Boolean = true
             }
     }
